@@ -1,0 +1,94 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- v2003 FIX 1: uses-sdk is MANDATORY (see the pipeline manifest
+         copy in build/manual-apk/ for the full note). v2002 shipped
+         without it and targetSdk defaulted to 1 -> legacy compat mode.
+         Values match the known-good v2001 badging (24 / 36). -->
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- HEADPHONE/BT FIX (2026-10-30): Bluetooth SCO routing needs
+         BLUETOOTH_CONNECT on Android 12+ (user's TECNO is Android 12).
+         It was missing entirely, so the WebRTC audio switcher could
+         not use a paired Bluetooth headset even when the phone had
+         paired it. BLUETOOTH is the pre-31 legacy equivalent. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- BACKGROUND VOICE FIX (2026-10-30): foreground service keeps
+         the WebRTC voice session alive when the app backgrounds. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- ANDROID 14/15 (second phone is Android 15): a microphone
+         foreground service MUST declare its type and hold
+         FOREGROUND_SERVICE_MICROPHONE, and its notification needs
+         POST_NOTIFICATIONS on Android 13+. Without the type,
+         startForeground() on API 34+ can throw and kill the app
+         the moment voice joins — the prime Android 15 suspect. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- FIX 34 (2026-11-24): camera + photos. CAMERA was never
+         declared, so a camera permission could never be requested
+         at all; READ_MEDIA_IMAGES (Android 13+) and
+         READ_EXTERNAL_STORAGE (Android 12 and below, maxSdk 32)
+         cover the profile / community photo pickers' media-read
+         path on devices where the system photo picker is
+         unavailable. Without these declarations permission_handler
+         finds no manifest names and returns DENIED without ever
+         showing a system dialog. Keep in sync with the pipeline
+         manifest in build/manual-apk/AndroidManifest.xml — THAT
+         is the manifest the manual build packages. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <application
+        android:label="ARENA HUB"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- REMAINING-ITEMS: native deep links protournament://tournament/<id> -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="protournament" android:host="tournament"/>
+            </intent-filter>
+        </activity>
+        <service android:name=".VoiceForegroundService" android:exported="false" android:foregroundServiceType="microphone" />
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
