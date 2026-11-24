@@ -1,0 +1,107 @@
+name: protournament_user
+description: "ARENA HUB - native Flutter user app (Firebase Auth for login, Supabase for all data)."
+publish_to: 'none'
+version: 1.0.1+2023
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.0
+  supabase_flutter: ^2.16.0
+  google_sign_in: ^6.3.0
+  # FIX 30 (user order 2026-11-24): AI Studio login/signup design
+  # uses GoogleFonts (Barlow Condensed + Plus Jakarta Sans).
+  google_fonts: ^6.2.1
+  # FIX 31 (AI Studio voice room, 29 Lucide icon names used).
+  # DEVIATION from the snippet's ^1.2.0: EVERY 1.x release
+  # (1.2.0 and 1.3.0 both verified) does `class LucideIconData
+  # extends IconData`, which cannot compile on this Flutter SDK
+  # (IconData is final here — Dart 3.14). ^4.0.3 is the same
+  # package, same LucideIcons.<name> API, all 29 used names
+  # present, plain `const IconData` definitions — no screen
+  # code changes needed.
+  lucide_icons_flutter: ^4.0.3
+  onesignal_flutter: ^5.2.0
+  image_picker: ^1.1.0
+  http: ^1.2.0
+  share_plus: ^10.0.0
+  url_launcher: ^6.3.0
+  shared_preferences: 2.3.0
+  # Wave 4 item B — fast image loading: disk-cached ImgBB images
+  # (one package only; 3.x line for Flutter 3.47.7).
+  cached_network_image: ^3.4.1
+  flutter_webrtc: 1.6.3
+  livekit_client: ^2.13.2
+  # AUDIO #10 Group 1 — Krisp mic noise cancellation (pub.dev 0.2.1).
+  livekit_noise_filter: ^0.2.1
+  permission_handler: ^11.3.0
+  connectivity_plus: ^7.0.0
+  audioplayers: ^6.8.1
+  # ROUND 7 shared music: pick an audio file from the user's own phone.
+  # Pinned to the cached 8.3.7 (compileSdk 36 patch already in pub cache);
+  # 10.x needs AGP/Kotlin artifacts that cannot be fetched in this env.
+  file_picker: 8.3.7
+  # FULL COMPLETION expansion 2: user-ID watermark on result screenshots.
+  image: ^4.1.0
+  app_links: ^7.2.2
+  pdf: ^3.13.1
+  # PayFast hosted checkout page ONLY (gateway's own page). The rest
+  # of the app stays native — this is not a WebView app shell.
+  webview_flutter: ^4.14.1
+  lottie: ^3.8.2
+
+dependency_overrides:
+  # 2.5.x of shared_preferences_android crashes at runtime in this build
+  # environment (Pigeon NoSuchMethodError) - pinned per standing lesson.
+  shared_preferences_android: 2.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/sounds/
+    - assets/images/
+    - assets/arena_hub_splash.png
+    # FIX 23 item 21 (user order 2026-11-23): Sameer's default app-wide
+    # background artwork — FINAL-LOCKED ChatGPT design 2026-11-23
+    # 23:35 (no PUBG text, no crown; supersedes the original PNG and
+    # the cleaned webp). Declared explicitly (in addition to the
+    # assets/images/ directory above) so the asset is verifiable by
+    # name; AppBackgroundLayer falls back to it.
+    - assets/images/app_background.png
+    # FIX 31 (AI Studio voice room): the voice background is a
+    # copy of the item-21 app background (no separate image was
+    # sent); the screen has a gradient errorBuilder fallback.
+    - assets/images/arena_voice_background.png
+    # FIX 23 item 24 (user order 2026-11-23 23:47): blue+purple smoke
+    # Lottie (free, Lottie Simple License — see
+    # ~/workspace/arena-hub-background/smoke-lottie/README.md).
+    - assets/lottie/smoke_blue_purple.json
+    # FIX 23 item 25 (user order 2026-11-23 23:50): the new ARENA HUB
+    # logo (helmet soldier + crown + PLAY • COMPETE • WIN, blue-purple
+    # smoke). Splash + Home header + sign-in/sign-up. The launcher
+    # icon is UNCHANGED.
+    - assets/images/arena_hub_logo.png
+    # FIX 23 item 26 REPLACED (user order 2026-11-24 00:33, "same
+    # lagao"): AI Studio cinematic splash artwork — a copy of the
+    # existing poster (assets/arena_hub_splash.png, 841x1792; the
+    # code assumes 841x1870, ~4% taller — layer zones are normalized
+    # fractions so they still align). Declared explicitly (in
+    # addition to the assets/images/ directory above) so the asset
+    # is verifiable by name.
+    - assets/images/arena_hub_splash_art.png
+    # FIX 30 (user order 2026-11-24 01:10): the AUTH-ONLY background
+    # for the AI Studio login/signup screens (soldier + purple smoke
+    # + sunset battlefield). NOT the app-wide item-21 background
+    # (assets/images/app_background.png stays as-is). Declared
+    # explicitly (in addition to the assets/images/ directory above)
+    # so the asset is verifiable by name.
+    - assets/images/arena_auth_background.png

@@ -1,0 +1,29 @@
+allprojects {
+    repositories {
+        // Vendored JitPack artifact (flutter_webrtc's audioswitch): Gradle
+        // reads through this sandbox's proxy time out on jitpack.io, while
+        // direct egress downloads work. Resolved locally first; see
+        // local-maven/ and README.md. Remove when the proxy is fixed.
+        maven { url = uri("${rootProject.projectDir}/local-maven") }
+        google()
+        mavenCentral()
+    }
+}
+
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
+}
